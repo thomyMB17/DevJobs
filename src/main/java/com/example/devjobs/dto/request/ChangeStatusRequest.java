@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChangeStatusRequest {
 
-    @NotNull
+    @NotNull(message = "El estado es obligatorio")
     private ApplicationStatus status;
 
     private String note;
