@@ -2,6 +2,7 @@ package com.example.devjobs.service;
 
 import com.example.devjobs.dto.request.ApplyRequest;
 import com.example.devjobs.dto.request.ChangeStatusRequest;
+import com.example.devjobs.dto.response.ApplicationEventResponse;
 import com.example.devjobs.dto.response.ApplicationResponse;
 import com.example.devjobs.exception.DuplicateApplicationException;
 import com.example.devjobs.exception.ResourceNotFoundException;
@@ -38,7 +39,7 @@ public class ApplicationService {
         if(!job.isActive()){
             throw new UnauthorizedActionException("Oferta de trabajo no disponible.");
         }
-        if(iApplicationRepository.existsByUserIdAndJobId(candidato.getId(), jobId)){
+        if(iApplicationRepository.existsByCandidateIdAndJobPostingId(candidato.getId(), jobId)){
             throw new DuplicateApplicationException("No puedes postular 2 veces a la misma oferta.");
         }
         Application apply = Application.builder()
@@ -114,5 +115,21 @@ public class ApplicationService {
                 .cvUrl(save.getCvUrl())
                 .appliedAt(save.getAppliedAt())
                 .build();
+    }
+    public List<ApplicationEventResponse> getApplicationEvents(Long applicationId, String email) {
+        Application application = iApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Aplicacion no encontrada"));
+        if (!application.getJobPosting().getCompany().getOwner().getEmail().equals(email)) {
+            throw new UnauthorizedActionException("No tienes permiso para ver este historial.");
+        }
+        return application.getEvents()
+                .stream()
+                .map(event -> ApplicationEventResponse.builder()
+                        .fromStatus(event.getFromStatus())
+                        .toStatus(event.getToStatus())
+                        .note(event.getNote())
+                        .changedAt(event.getChangedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

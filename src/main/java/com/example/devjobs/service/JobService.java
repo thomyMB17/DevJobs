@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,13 +73,15 @@ public class JobService {
                         .seniority(job.getSeniority())
                         .salaryMin(job.getSalaryMin())
                         .salaryMax(job.getSalaryMax())
+                        .isActive(job.isActive())
+                        .technologies(job.getTechnologies())
                         .publishedAt(job.getPublishedAt())
                         .build());
     }
     //getJobById(id) — busca por id, lanza ResourceNotFoundException si no existe.
     public JobDetailResponse getJobById(Long id){
         JobPosting job = iJobRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("Trabajo no econtrado."));
+                ()-> new ResourceNotFoundException("Trabajo no encontrado."));
         return getJobDetailResponse(job);
     }
 
@@ -87,7 +90,7 @@ public class JobService {
     // sea el dueño de la empresa que la publicó, actualiza campos.
     public JobDetailResponse updateJob(Long id, UpdateJobRequest request, String email){
         JobPosting job = iJobRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Trabajo no encontrada"));
+                .orElseThrow(()-> new ResourceNotFoundException("Trabajo no encontrado"));
         if(!job.getCompany().getOwner().getEmail().equals(email)){
             throw new UnauthorizedActionException("Solo el dueño de esta compañia puede actualizar los trabajos.");
         }
@@ -118,6 +121,7 @@ public class JobService {
         return getJobDetailResponse(job);
     }
     //getJobsByCompany(companyId) — busca todas las ofertas activas de una empresa específica.
+    @Transactional(readOnly = true)
     public List<JobSummaryResponse> getJobsByCompany(Long companyId){
         Company company = iCompanyRepository.findById(companyId)
                 .orElseThrow(()-> new ResourceNotFoundException("Compañia no encontrada"));
@@ -137,7 +141,6 @@ public class JobService {
                         .build())
                 .collect(Collectors.toList());
     }
-
     private JobDetailResponse getJobDetailResponse(JobPosting job) {
         return JobDetailResponse.builder()
                 .id(job.getId())
