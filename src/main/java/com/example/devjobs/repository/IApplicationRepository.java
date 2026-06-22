@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface IApplicationRepository extends JpaRepository<Application, Long> {
-    boolean existsByUserIdAndJobId(Long id, Long jobId);
+    boolean existsByCandidateIdAndJobPostingId(Long userId, Long jobId);
 
     List<Application> findByCandidate_Id(Long id);
 
