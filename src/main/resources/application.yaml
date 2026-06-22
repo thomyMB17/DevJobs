@@ -3,17 +3,20 @@ spring:
     name: DevJobs
 
   datasource:
-    url: jdbc:mysql://${BDDURL}:${BDDPORT}/${BDD}?useSSL=false&serverTimezone=UTC
-    username: ${BDDUSER}
-    password: ${BDDPASS}
+    url: jdbc:mysql://${bddurl}:${bddport}/${bdd}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${bdduser}
+    password: ${bddpass}
     driver-class-name: com.mysql.cj.jdbc.Driver
-  jwt:
-    secret: ${jwt.secret}
-    expiration: ${jwt.expiration}
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+jwtsecret: ${JWT_SECRET}
+jwtexpiration: ${JWT_EXPIRATION}
+
+server:
+  port: 8080
