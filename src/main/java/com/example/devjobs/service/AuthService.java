@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +75,12 @@ public class AuthService {
         log.info("Generando token para el usuario: {}", user.getEmail());
         String token = jwtService.getToken(claims, user.getEmail());
         log.info("Login exitoso para el usuario: {}", user.getEmail());
-        return AuthResponse.builder().token(token).build();
+        return AuthResponse.builder()
+                .token(token)
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .build();
 
     }
 }
