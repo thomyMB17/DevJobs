@@ -11,7 +11,6 @@ public class CreateCompanyRequest {
 
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
-
     private String industry;
     private String website;
     private String description;
