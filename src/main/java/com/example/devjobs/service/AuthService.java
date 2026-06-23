@@ -9,7 +9,7 @@ import com.example.devjobs.exception.UnauthorizedActionException;
 import com.example.devjobs.model.User;
 import com.example.devjobs.repository.IUserRepository;
 import com.example.devjobs.security.JwtService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,14 +24,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final IUserRepository iUserRepository;
+    private final IUserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         log.info("Iniciando registro de usuario con correo: {}", request.getEmail());
-        if (iUserRepository.findByEmail(request.getEmail()).isPresent()){
+        if (userRepository.findByEmail(request.getEmail()).isPresent()){
             log.warn("Usuario con email {} ya existe.", request.getEmail());
             throw new DuplicateEmailException("Email ya existe.");
         }
@@ -40,10 +40,8 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .role(request.getRole())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
-        iUserRepository.save(user);
+        userRepository.save(user);
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", request.getRole());
         claims.put("email", request.getEmail());
@@ -58,8 +56,9 @@ public class AuthService {
                 .role(request.getRole())
                 .build();
     }
+    @Transactional
     public AuthResponse login(LoginRequest request){
-        User user = iUserRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Usuario con email: {} no existe.", request.getEmail());
                     return new ResourceNotFoundException("Email no existe.");
@@ -68,6 +67,8 @@ public class AuthService {
             log.warn("Login fallido: contraseña incorrecta | email: {}", request.getEmail());
             throw new UnauthorizedActionException("Contraseña incorrecta.");
         }
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole());
         claims.put("email", user.getEmail());

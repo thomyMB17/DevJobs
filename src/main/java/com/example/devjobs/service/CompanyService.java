@@ -12,19 +12,28 @@ import com.example.devjobs.repository.ICompanyRepository;
 import com.example.devjobs.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CompanyService {
 
-    private final ICompanyRepository iCompanyRepository;
-    private final IUserRepository iUserRepository;
+    private final ICompanyRepository companyRepository;
+    private final IUserRepository userRepository;
+    private final SecurityService securityService;
     //crea una empresa asociada al usuario autenticado
+    @Transactional
     public CompanyResponse createCompany(CreateCompanyRequest request, String email){
-        User user = iUserRepository.findByEmail(email)
-                .orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado."));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> {
+                    log.warn("Usuario no encontrado al crear compañia: {}", email);
+                    return new ResourceNotFoundException("Usuario no encontrado.");
+                });
+        log.info("Creando compañia para el usuario: {}", email);
         Company company = Company.builder()
                 .owner(user)
                 .name(request.getName())
@@ -33,7 +42,8 @@ public class CompanyService {
                 .description(request.getDescription())
                 .location(request.getLocation())
                 .build();
-        Company save = iCompanyRepository.save(company);
+        Company save = companyRepository.save(company);
+        log.info("Compañia creada con ID: {}", save.getId());
         return CompanyResponse.builder()
                 .id(save.getId())
                 .name(save.getName())
@@ -47,8 +57,12 @@ public class CompanyService {
     }
     //busca la empresa por id, si no existe lanza
     public CompanyResponse getCompanyById(Long id){
-        Company company = iCompanyRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Compañia no encontrada"));
+        log.info("Buscando compañia por ID: {}", id);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(()-> {
+                    log.warn("Compañia no encontrada - ID: {}", id);
+                    return new ResourceNotFoundException("Compañia no encontrada");
+                });
         return CompanyResponse.builder()
                 .id(company.getId())
                 .name(company.getName())
@@ -60,13 +74,33 @@ public class CompanyService {
                 .createdAt(company.getCreatedAt())
                 .build();
     }
+    public Page<CompanyResponse> getAllCompanies(Pageable pageable){
+        log.info("Obteniendo todas las compañías");
+        return companyRepository.findAll(pageable)
+                .map(company -> CompanyResponse.builder()
+                        .id(company.getId())
+                        .name(company.getName())
+                        .industry(company.getIndustry())
+                        .website(company.getWebsite())
+                        .description(company.getDescription())
+                        .location(company.getLocation())
+                        .ownerFullName(company.getOwner().getFullName())
+                        .createdAt(company.getCreatedAt())
+                        .build());
+    }
     // busca la empresa, verifica que el email del dueño coincida con
     // el autenticado, actualiza solo los campos que llegaron en el request.
     //PATCH MAPPING
+    @Transactional
     public CompanyResponse updateCompany(Long id, UpdateCompanyRequest request, String email){
-        Company company = iCompanyRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Compañia no encontrada"));
-        if(!company.getOwner().getEmail().equals(email)){
+        log.info("Actualizando compañia ID: {} por usuario: {}", id, email);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(()-> {
+                    log.warn("Compañia no encontrada al actualizar - ID: {}", id);
+                    return new ResourceNotFoundException("Compañia no encontrada");
+                });
+        if(!securityService.isAdmin(email) && !company.getOwner().getEmail().equals(email)){
+            log.warn("Usuario {} no autorizado para actualizar compañia ID: {}", email, id);
             throw new UnauthorizedActionException("Solo el dueño de esta compañia puede actualizarla.");
         }
         if (request.getName() != null) company.setName(request.getName());
@@ -75,7 +109,7 @@ public class CompanyService {
         if (request.getDescription() != null) company.setDescription(request.getDescription());
         if (request.getLocation() != null) company.setLocation(request.getLocation());
 
-        iCompanyRepository.save(company);
+        companyRepository.save(company);
 
         return CompanyResponse.builder()
                 .id(company.getId())
@@ -90,13 +124,20 @@ public class CompanyService {
     }
     // busca la empresa, verifica que sea el dueño, llama a repository.delete().
 
+    @Transactional
     public DeleteResponse deleteCompany(Long id, String email){
-        Company company = iCompanyRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Compañia no encontrada"));
-        if(!company.getOwner().getEmail().equals(email)){
+        log.info("Eliminando compañia ID: {} por usuario: {}", id, email);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(()-> {
+                    log.warn("Compañia no encontrada al eliminar - ID: {}", id);
+                    return new ResourceNotFoundException("Compañia no encontrada");
+                });
+        if(!securityService.isAdmin(email) && !company.getOwner().getEmail().equals(email)){
+            log.warn("Usuario {} no autorizado para eliminar compañia ID: {}", email, id);
             throw new UnauthorizedActionException("Solo el dueño de esta compañia puede eliminarla.");
         }
-        iCompanyRepository.delete(company);
+        companyRepository.delete(company);
+        log.info("Compañia ID: {} eliminada exitosamente", id);
         return DeleteResponse.builder().message("Compañia eliminada exitosamente.").build();
     }
 
