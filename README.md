@@ -10,11 +10,12 @@ Registrate, creá tu empresa, publicá ofertas laborales y postulate con un clic
 | Capa | Tecnología |
 |------|-----------|
 | **Runtime** | Java 21 |
-| **Framework** | Spring Boot 3.4 |
+| **Framework** | Spring Boot 4.1.0 |
 | **ORM** | Spring Data JPA / Hibernate |
-| **Seguridad** | Spring Security + JWT (jjwt 0.12) |
+| **Seguridad** | Spring Security + JWT (jjwt 0.12.6) |
 | **Base de datos** | MySQL |
 | **Validación** | Jakarta Validation |
+| **Documentación** | Springdoc OpenAPI (Swagger UI) |
 | **Utilidades** | Lombok, Slf4j |
 
 ---
@@ -23,10 +24,10 @@ Registrate, creá tu empresa, publicá ofertas laborales y postulate con un clic
 
 ```bash
 # 1. Clonar
-git clone https://github.com/tu-usuario/devjobs.git
+git clone https://github.com/thomyMB17/devjobs.git
 cd devjobs
 
-# 2. Configurar base de datos en application.properties
+# 2. Configurar base de datos en application.yaml
 spring.datasource.url=jdbc:mysql://localhost:3306/devjobs
 spring.datasource.username=root
 spring.datasource.password=tu-password
@@ -36,7 +37,8 @@ app.jwt.secret=tu-secreto-jwt
 ./mvnw spring-boot:run
 ```
 
-> La app arranca en `http://localhost:8080`.
+> La app arranca en `http://localhost:8080`.  
+> Swagger UI disponible en `http://localhost:8080/swagger-ui.html`.
 
 ---
 
@@ -49,36 +51,47 @@ app.jwt.secret=tu-secreto-jwt
 | `POST` | `/register` | Registrarse como CANDIDATE o EMPLOYER | ❌ |
 | `POST` | `/login` | Iniciar sesión, devuelve JWT | ❌ |
 
-### Companies (`/api/v1/companies`)
+### Companies (`/api/v1/company`)
 
 | Método | Ruta | Descripción | Auth |
 |--------|------|-------------|------|
-| `POST` | `/` | Crear empresa (solo EMPLOYER) | ✅ |
-| `GET` | `/{id}` | Obtener empresa por ID | ❌ |
-| `PATCH` | `/{id}` | Actualizar empresa (solo dueño) | ✅ |
-| `DELETE` | `/{id}` | Eliminar empresa (solo dueño) | ✅ |
+| `GET` | `/getAll` | Listar todas las compañías (paginado) | ❌ |
+| `GET` | `/getById/{id}` | Obtener compañía por ID | ❌ |
+| `POST` | `/createCompany` | Crear compañía (solo EMPLOYER) | ✅ |
+| `PATCH` | `/updateCompany/{id}` | Actualizar compañía (solo dueño) | ✅ |
+| `DELETE` | `/deleteCompany/{id}` | Eliminar compañía (solo dueño) | ✅ |
 
-### Jobs (`/api/v1/jobs`)
+### Jobs (`/api/v1/job`)
 
 | Método | Ruta | Descripción | Auth |
 |--------|------|-------------|------|
-| `POST` | `/` | Crear oferta laboral (solo dueño de la company) | ✅ |
-| `GET` | `/` | Listar ofertas activas (con filtros y paginación) | ❌ |
-| `GET` | `/{id}` | Detalle de oferta | ❌ |
-| `PATCH` | `/{id}` | Actualizar oferta (solo dueño) | ✅ |
-| `PATCH` | `/{id}/deactivate` | Desactivar oferta (solo dueño) | ✅ |
-| `GET` | `/company/{companyId}` | Ofertas activas de una empresa | ❌ |
+| `GET` | `/getAllJobs` | Listar ofertas activas (con filtros y paginación) | ❌ |
+| `GET` | `/getJobById/{id}` | Detalle de oferta | ❌ |
+| `GET` | `/getCompanyJobs/companyId/{id}/jobs` | Ofertas activas de una empresa | ❌ |
+| `POST` | `/createJob` | Crear oferta laboral (solo dueño de la company) | ✅ |
+| `PATCH` | `/updateJob/{id}` | Actualizar oferta (solo dueño) | ✅ |
+| `PATCH` | `/activateJob/{id}` | Reactivar oferta (solo dueño) | ✅ |
+| `DELETE` | `/deactivateJob/{id}` | Desactivar oferta (solo dueño) | ✅ |
 
-**Filtros disponibles en GET `/`:** `technology`, `modality`, `seniority`, `location` + paginación (`page`, `size`).
+**Filtros en GET `/getAllJobs`:** `technology`, `modality`, `seniority`, `location` + paginación (`page`, `size`).
 
 ### Applications (`/api/v1/app`)
 
 | Método | Ruta | Descripción | Auth |
 |--------|------|-------------|------|
-| `POST` | `/{jobId}/apply` | Postularse a una oferta (solo CANDIDATE) | ✅ |
-| `GET` | `/my-applications` | Mis postulaciones (solo CANDIDATE) | ✅ |
-| `GET` | `/job/{jobId}` | Ver postulaciones de una oferta (solo dueño) | ✅ |
-| `PATCH` | `/{applicationId}/status` | Cambiar estado de postulación (solo dueño) | ✅ |
+| `POST` | `/apply/{jobId}` | Postularse a una oferta (solo CANDIDATE) | ✅ |
+| `GET` | `/getApplications/me` | Mis postulaciones (paginado) | ✅ |
+| `GET` | `/getApplicationsByJobId/{id}` | Postulaciones de una oferta (solo dueño, paginado) | ✅ |
+| `GET` | `/getApplicationsEventsId/{id}` | Historial de cambios de una postulación | ✅ |
+| `PATCH` | `/changeStatusId/{id}` | Cambiar estado de postulación (solo dueño) | ✅ |
+
+### Admin (`/api/v1/admin`)
+
+| Método | Ruta | Descripción | Auth |
+|--------|------|-------------|------|
+| `GET` | `/users` | Listar todos los usuarios (paginado) | 🔒 ADMIN |
+| `GET` | `/users/{id}` | Obtener usuario por ID | 🔒 ADMIN |
+| `DELETE` | `/users/{id}` | Eliminar usuario | 🔒 ADMIN |
 
 ---
 
@@ -126,7 +139,7 @@ Todas las excepciones devuelven una respuesta uniforme:
 ```json
 {
   "status": 409,
-  "mensaje": "Email ya existe.",
+  "message": "Email ya existe.",
   "path": "/api/v1/auth/register",
   "timestamp": "2026-06-21T12:00:00"
 }
@@ -135,10 +148,13 @@ Todas las excepciones devuelven una respuesta uniforme:
 | Excepción | Status | Cuándo ocurre |
 |-----------|--------|---------------|
 | `ResourceNotFoundException` | 404 | Entidad no encontrada |
-| `UnauthorizedActionException` | 403 | Acción no permitida para el usuario |
+| `UnauthorizedActionException` | 401 | Credenciales inválidas o acción no permitida |
+| `AuthenticationException` | 401 | No autenticado |
+| `AccessDeniedException` | 403 | No tienes permisos para este recurso |
 | `DuplicateEmailException` | 409 | Email ya registrado |
 | `DuplicateApplicationException` | 409 | Ya te postulaste a esa oferta |
-| `MethodArgumentNotValidException` | 400 | Errores de validación |
+| `DataIntegrityViolationException` | 409 | Conflicto de integridad de datos |
+| `MethodArgumentNotValidException` | 400 | Errores de validación en los campos |
 | `Exception` (general) | 500 | Error interno |
 
 ---
@@ -148,8 +164,8 @@ Todas las excepciones devuelven una respuesta uniforme:
 | Rol | Puede hacer |
 |-----|-------------|
 | **CANDIDATE** | Registrarse, ver ofertas, postularse, ver sus postulaciones |
-| **EMPLOYER** | Registrar empresa, crear/editar/desactivar ofertas de su empresa, revisar postulaciones, cambiar estados |
-| **ADMIN** | *(en desarrollo)* |
+| **EMPLOYER** | Registrar empresa, crear/editar/activar/desactivar ofertas de su empresa, revisar postulaciones, cambiar estados |
+| **ADMIN** | Todo lo anterior + gestión de usuarios (`/api/v1/admin/**`) |
 
 El JWT incluye los claims `role` y `email`, validados en cada request mediante `JwtAuthFilter`.
 
@@ -169,13 +185,19 @@ curl -X POST localhost:8080/api/v1/auth/login \
   -d '{"email":"empresa@mail.com","password":"123456"}'
 
 # Crear empresa (usar el token del login)
-curl -X POST localhost:8080/api/v1/companies \
+curl -X POST localhost:8080/api/v1/company/createCompany \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <token>" \
   -d '{"name":"Tech Corp","industry":"Software","location":"Remote"}'
 
 # Listar ofertas con filtros
-curl "localhost:8080/api/v1/jobs?technology=Java&modality=REMOTE&page=0&size=10"
+curl "localhost:8080/api/v1/job/getAllJobs?technology=Java&modality=REMOTE&page=0&size=10"
+
+# Postularse (como CANDIDATE)
+curl -X POST localhost:8080/api/v1/app/apply/1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"cvUrl":"https://cv.com/mi-cv.pdf"}'
 ```
 
 ---
