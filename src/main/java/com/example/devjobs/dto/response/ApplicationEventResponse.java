@@ -4,7 +4,7 @@ import com.example.devjobs.model.enums.ApplicationStatus;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class ApplicationEventResponse {
