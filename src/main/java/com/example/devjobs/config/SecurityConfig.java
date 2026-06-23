@@ -30,20 +30,27 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
 
-                        // EMPLOYER-only endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/v1/company/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/company/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/company/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/job/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/job/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/job/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/app/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/app/getApplicationsByJobId/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/app/getApplicationsEventsId/**").hasRole("EMPLOYER")
+                        // Public GET endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/v1/job/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/company/**").permitAll()
 
-                        // CANDIDATE-only endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/v1/app/**").hasRole("CANDIDATE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/app/getApplications/me").hasRole("CANDIDATE")
+                        // EMPLOYER-only endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/v1/company/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/company/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/company/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/job/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/job/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/job/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/app/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/app/getApplicationsByJobId/**").hasAnyRole("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/app/getApplicationsEventsId/**").hasAnyRole("ADMIN", "EMPLOYER")
+
+                        // CANDIDATE + ADMIN endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/v1/app/**").hasAnyRole("ADMIN", "CANDIDATE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/app/getApplications/me").hasAnyRole("ADMIN", "CANDIDATE")
+
+                        // ADMIN-only endpoints
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // Authenticated users (GET for jobs, companies, etc.)
                         .anyRequest().authenticated()
