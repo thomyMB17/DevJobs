@@ -67,7 +67,7 @@ public class JobPosting {
     private List<String> technologies = new ArrayList<>();
 
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Application> applications;
+    private List<Application> applications = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() { publishedAt = LocalDateTime.now(); }

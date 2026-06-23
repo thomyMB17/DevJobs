@@ -72,7 +72,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
 
         String json = String.format(
-                "{\"status\":%d,\"mensaje\":\"%s\",\"path\":\"\",\"timestamp\":\"%s\"}",
+                "{\"status\":%d,\"message\":\"%s\",\"path\":\"\",\"timestamp\":\"%s\"}",
                 HttpStatus.UNAUTHORIZED.value(),
                 mensaje,
                 LocalDateTime.now().toString()

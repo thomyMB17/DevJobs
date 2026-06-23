@@ -2,6 +2,7 @@ package com.example.devjobs.dto.response;
 
 import com.example.devjobs.model.enums.Modality;
 import com.example.devjobs.model.enums.Seniority;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class JobSummaryResponse {
     private Seniority seniority;
     private BigDecimal salaryMin;
     private BigDecimal salaryMax;
+    @JsonProperty("isActive")
     private boolean isActive;
     private LocalDateTime publishedAt;
     private List<String> technologies;
