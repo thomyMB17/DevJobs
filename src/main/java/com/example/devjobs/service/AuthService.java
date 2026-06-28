@@ -35,6 +35,10 @@ public class AuthService {
             log.warn("Usuario con email {} ya existe.", request.getEmail());
             throw new DuplicateEmailException("Email ya existe.");
         }
+        if (request.getRole() == Role.ADMIN){
+            log.warn("Intento de crear cuenta con rol ADMIN");
+            throw new UnauthorizedActionException("No puedes crear una cuenta con rol ADMIN");
+        }
         User user = User.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
