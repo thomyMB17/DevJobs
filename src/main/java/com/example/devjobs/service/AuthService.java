@@ -7,6 +7,7 @@ import com.example.devjobs.exception.DuplicateEmailException;
 import com.example.devjobs.exception.ResourceNotFoundException;
 import com.example.devjobs.exception.UnauthorizedActionException;
 import com.example.devjobs.model.User;
+import com.example.devjobs.model.enums.Role;
 import com.example.devjobs.repository.IUserRepository;
 import com.example.devjobs.security.JwtService;
 import org.springframework.transaction.annotation.Transactional;
