@@ -10,9 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +29,8 @@ public class AdminController extends BaseController {
             @ApiResponse(responseCode = "403", description = "No eres ADMIN", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/users")
-    public ResponseEntity<Page<User>> getAllUsers(@PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getAllUsers(pageable));
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
     }
 
     @Operation(summary = "Obtener usuario por ID", description = "Obtiene un usuario por su ID (solo ADMIN)")

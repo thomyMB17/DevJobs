@@ -13,9 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +32,9 @@ public class ApplicationController extends BaseController{
             @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/getApplications/me")
-    public ResponseEntity<Page<ApplicationResponse>> getAllApplications(@PageableDefault(size = 10) Pageable pageable){
+    public ResponseEntity<List<ApplicationResponse>> getAllApplications(){
         String email = getEmailFromToken();
-        return ResponseEntity.ok(applicationService.getMyApplications(email, pageable));
+        return ResponseEntity.ok(applicationService.getMyApplications(email));
     }
 
     @Operation(summary = "Postulaciones por oferta", description = "Obtiene las postulaciones de una oferta (solo dueño o ADMIN)")
@@ -48,9 +45,9 @@ public class ApplicationController extends BaseController{
             @ApiResponse(responseCode = "404", description = "Oferta no encontrada", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/getApplicationsByJobId/{id}")
-    public ResponseEntity<Page<ApplicationResponse>> getAllApplicationsByJob(@PathVariable Long id, @PageableDefault(size = 10) Pageable pageable){
+    public ResponseEntity<List<ApplicationResponse>> getAllApplicationsByJob(@PathVariable Long id){
         String email = getEmailFromToken();
-        return ResponseEntity.ok(applicationService.getApplicationsByJob(id, email, pageable));
+        return ResponseEntity.ok(applicationService.getApplicationsByJob(id, email));
     }
 
     @Operation(summary = "Historial de cambios", description = "Obtiene el historial de cambios de estado de una postulación (solo dueño o ADMIN)")

@@ -6,8 +6,7 @@ import com.example.devjobs.model.User;
 import com.example.devjobs.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +18,9 @@ public class AdminService {
     private final IUserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Page<User> getAllUsers(Pageable pageable) {
+    public List<User> getAllUsers() {
         log.info("Admin listando todos los usuarios");
-        return userRepository.findAll(pageable);
+        return userRepository.findAll();
     }
 
     @Transactional(readOnly = true)

@@ -17,8 +17,6 @@ import com.example.devjobs.repository.IJobRepository;
 import com.example.devjobs.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,14 +79,15 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ApplicationResponse> getMyApplications(String email, Pageable pageable){
+    public List<ApplicationResponse> getMyApplications(String email){
         log.info("Obteniendo aplicaciones del usuario: {}", email);
         User candidato = userRepository.findByEmail(email)
                 .orElseThrow(()-> {
                     log.warn("Usuario no encontrado al obtener aplicaciones: {}", email);
                     return new ResourceNotFoundException("Usuario no encontrado");
                 });
-        return applicationRepository.findByCandidate_Id(candidato.getId(), pageable)
+        return applicationRepository.findByCandidate_Id(candidato.getId())
+                .stream()
                 .map(app -> ApplicationResponse.builder()
                         .id(app.getId())
                         .jobTitle(app.getJobPosting().getTitle())
@@ -97,11 +96,12 @@ public class ApplicationService {
                         .coverLetter(app.getCoverLetter())
                         .cvUrl(app.getCvUrl())
                         .appliedAt(app.getAppliedAt())
-                        .build());
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<ApplicationResponse> getApplicationsByJob(Long jobId, String email, Pageable pageable){
+    public List<ApplicationResponse> getApplicationsByJob(Long jobId, String email){
         log.info("Obteniendo aplicaciones del trabajo ID: {} por usuario: {}", jobId, email);
         JobPosting job = jobRepository.findById(jobId)
                 .orElseThrow(()-> {
@@ -112,7 +112,8 @@ public class ApplicationService {
             log.warn("Usuario {} no autorizado para ver postulaciones del trabajo ID: {}", email, jobId);
             throw new UnauthorizedActionException("Solo el dueño de la compañia puede ver las postulaciones");
         }
-        return applicationRepository.findByJobPosting_Id(job.getId(), pageable)
+        return applicationRepository.findByJobPosting_Id(job.getId())
+                .stream()
                 .map(app -> ApplicationResponse.builder()
                         .id(app.getId())
                         .jobTitle(app.getJobPosting().getTitle())
@@ -121,7 +122,8 @@ public class ApplicationService {
                         .coverLetter(app.getCoverLetter())
                         .cvUrl(app.getCvUrl())
                         .appliedAt(app.getAppliedAt())
-                        .build());
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional

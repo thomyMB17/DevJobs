@@ -12,8 +12,8 @@ import com.example.devjobs.repository.ICompanyRepository;
 import com.example.devjobs.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,9 +74,10 @@ public class CompanyService {
                 .createdAt(company.getCreatedAt())
                 .build();
     }
-    public Page<CompanyResponse> getAllCompanies(Pageable pageable){
+    public List<CompanyResponse> getAllCompanies(){
         log.info("Obteniendo todas las compañías");
-        return companyRepository.findAll(pageable)
+        return companyRepository.findAll()
+                .stream()
                 .map(company -> CompanyResponse.builder()
                         .id(company.getId())
                         .name(company.getName())
@@ -86,7 +87,8 @@ public class CompanyService {
                         .location(company.getLocation())
                         .ownerFullName(company.getOwner().getFullName())
                         .createdAt(company.getCreatedAt())
-                        .build());
+                        .build())
+                .collect(Collectors.toList());
     }
     // busca la empresa, verifica que el email del dueño coincida con
     // el autenticado, actualiza solo los campos que llegaron en el request.

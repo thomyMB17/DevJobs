@@ -13,12 +13,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,8 +31,8 @@ public class CompanyController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Listado de compañías")
     })
     @GetMapping("/getAll")
-    public ResponseEntity<Page<CompanyResponse>> getAllCompanies(@PageableDefault(size = 10) Pageable pageable){
-        return ResponseEntity.ok(companyService.getAllCompanies(pageable));
+    public ResponseEntity<List<CompanyResponse>> getAllCompanies(){
+        return ResponseEntity.ok(companyService.getAllCompanies());
     }
 
     @Operation(summary = "Obtener compañía por ID")

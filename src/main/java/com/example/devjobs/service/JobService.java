@@ -16,8 +16,6 @@ import com.example.devjobs.repository.IUserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,12 +67,12 @@ public class JobService {
     //getAllJobs(filtros, pageable) — consulta la BD con los filtros que llegaron,
     // los que vengan nulos los ignora. Devuelve paginado.
     @Transactional(readOnly = true)
-    public Page<JobSummaryResponse> getAllJobs(String technology, Modality modality,
-                                   Seniority seniority, String location,
-                                   Pageable pageable){
+    public List<JobSummaryResponse> getAllJobs(String technology, Modality modality,
+                                   Seniority seniority, String location){
         log.info("Buscando trabajos con filtros - technology: {}, modality: {}, seniority: {}, location: {}",
                 technology, modality, seniority, location);
-        return jobRepository.findAllWithFilters(technology, modality, seniority, location, pageable)
+        return jobRepository.findAllWithFilters(technology, modality, seniority, location)
+                .stream()
                 .map(job -> JobSummaryResponse.builder()
                         .id(job.getId())
                         .title(job.getTitle())
@@ -87,7 +85,8 @@ public class JobService {
                         .isActive(job.isActive())
                         .technologies(job.getTechnologies())
                         .publishedAt(job.getPublishedAt())
-                        .build());
+                        .build())
+                .collect(Collectors.toList());
     }
     //getJobById(id) — busca por id, lanza ResourceNotFoundException si no existe.
     public JobDetailResponse getJobById(Long id){

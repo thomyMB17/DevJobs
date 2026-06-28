@@ -15,9 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,16 +33,13 @@ public class JobController extends BaseController{
             @ApiResponse(responseCode = "200", description = "Listado de ofertas")
     })
     @GetMapping("/getAllJobs")
-    public ResponseEntity<Page<JobSummaryResponse>> getAllJobs(
+    public ResponseEntity<List<JobSummaryResponse>> getAllJobs(
             @RequestParam(required = false) String technology,
             @RequestParam(required = false) Modality modality,
             @RequestParam(required = false) Seniority seniority,
-            @RequestParam(required = false) String location,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(required = false) String location) {
 
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(jobService.getAllJobs(technology, modality, seniority, location, pageable));
+        return ResponseEntity.ok(jobService.getAllJobs(technology, modality, seniority, location));
     }
 
     @Operation(summary = "Obtener oferta por ID")
