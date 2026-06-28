@@ -19,19 +19,25 @@ Registrate, creá tu empresa, publicá ofertas laborales y postulate con un clic
 | **Utilidades** | Lombok, Slf4j |
 
 ---
+## Arquitectura
+
+- EC2 t3.small (Ubuntu) → Spring Boot en Docker, IP pública, puerto 80(HTTP)
+- EC2 t3.small (Ubuntu)  → Base de datos MySQL en una instancia separada.
+
+---
 
 ## Setup
 
 ```bash
 # 1. Clonar
-git clone https://github.com/thomyMB17/devjobs.git
+git clone https://github.com/thomyconhachedev/devjobs.git
 cd devjobs
 
-# 2. Configurar base de datos en application.yaml
+# 2. Configurar base de datos en application.properties
 spring.datasource.url=jdbc:mysql://localhost:3306/devjobs
 spring.datasource.username=root
 spring.datasource.password=tu-password
-app.jwt.secret=tu-secreto-jwt
+app.jwt.secret=tu-llave-secreta-jwt
 
 # 3. Ejecutar
 ./mvnw spring-boot:run
