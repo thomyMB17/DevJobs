@@ -1,8 +1,6 @@
 package com.example.devjobs.repository;
 
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,12 +20,11 @@ public interface IJobRepository extends JpaRepository<JobPosting, Long> {
     AND (:seniority IS NULL OR j.seniority = :seniority)
     AND (:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%')))
     """)
-    Page<JobPosting> findAllWithFilters(
+    List<JobPosting> findAllWithFilters(
             @Param("technology") String technology,
             @Param("modality") Modality modality,
             @Param("seniority") Seniority seniority,
-            @Param("location") String location,
-            Pageable pageable
+            @Param("location") String location
     );
 
     List<JobPosting> findByCompany_IdAndIsActiveTrue(Long companyId);
