@@ -4,7 +4,13 @@ API REST para conectar **desarrolladores** con **empresas** tecnológicas.
 Registrate, creá tu empresa, publicá ofertas laborales y postulate con un clic.
 
 ---
+## Motivación
 
+Este proyecto nace con fines personales y académicos. Mi motivación principal es aprender y mejorar continuamente
+mis habilidades como desarrollador backend a través de la práctica constante y la creación de proyectos funcionales.
+Subir este tipo de proyectos a GitHub me permite documentar mi progreso, aplicar nuevos conceptos y construir un
+portafolio sólido que refleje mi camino hacia mi primer empleo en el área de desarrollo de software.
+---
 ## Stack
 
 | Capa | Tecnología |
@@ -222,15 +228,6 @@ curl -X POST localhost:8080/api/v1/app/apply/1 \
   -H "Authorization: Bearer <token>" \
   -d '{"cvUrl":"https://cv.com/mi-cv.pdf"}'
 ```
-
----
-## Motivación
-
-Este proyecto nace con fines personales y académicos. Mi motivación principal es aprender y mejorar continuamente
-mis habilidades como desarrollador backend a través de la práctica constante y la creación de proyectos funcionales.
-Subir este tipo de proyectos a GitHub me permite documentar mi progreso, aplicar nuevos conceptos y construir un
-portafolio sólido que refleje mi camino hacia mi primer empleo en el área de desarrollo de software.
-
 ---
 ## Licencia
 
