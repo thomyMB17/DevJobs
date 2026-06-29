@@ -31,7 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
-/proyecto.md
-/CONTEXTO.md
-/Dockerfile
-/TODO.md
+/src/main/resources/application.yaml
