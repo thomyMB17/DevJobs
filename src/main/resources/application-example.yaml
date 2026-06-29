@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: DevJobs
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/devjobs_db
+    username: db_user
+    password: db_password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8080
+
+jwt:
+  secret: your-secret-here
+  expiration: 3600000 # 1 hora en milisegundos
