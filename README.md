@@ -33,14 +33,31 @@ Registrate, creá tu empresa, publicá ofertas laborales y postulate con un clic
 git clone https://github.com/thomyconhachedev/devjobs.git
 cd devjobs
 
-# 2. Configurar base de datos en application.properties
+# 2. Configurar base de datos y JWT en application.properties
 spring.datasource.url=jdbc:mysql://localhost:3306/devjobs
 spring.datasource.username=root
 spring.datasource.password=tu-password
 app.jwt.secret=tu-llave-secreta-jwt
 
+# 2.1 Configurar base de datos y JWT en application.yaml 
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/devjobs_db
+    username: db_user
+    password: db_password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+jwt:
+  secret: your-secret-here
+  expiration: 3600000 # 1 hora en milisegundos
+
 # 3. Ejecutar
-./mvnw spring-boot:run
+mvnw spring-boot:run
 ```
 
 > La app arranca en `http://localhost:8080`.  
